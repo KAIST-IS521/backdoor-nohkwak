@@ -42,6 +42,13 @@ void *add(struct VMContext* ctx, const uint32_t instr) {
     printf("%d = %d + %d\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
+void *sub(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    const uint8_t c = EXTRACT_B3(instr);
+    ctx->r[a].value = ctx->r[b].value - ctx->r[c].value;
+    printf("%d = %d - %d\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+}
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
@@ -57,8 +64,8 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x13] = puti;
     */
     f[0x50] = add;
+    f[0x60] = sub;
     /*
-    f[0x15] = sub;
     f[0x16] = gt;
     f[0x17] = ge;
     f[0x18] = eq;
