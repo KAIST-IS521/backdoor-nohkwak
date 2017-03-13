@@ -20,15 +20,28 @@ void usageExit() {
     exit(1);
 }
 
-void *halt(struct VMcontext* ctx, const uint32_t instr) {
+void *halt(struct VMContext* ctx, const uint32_t instr) {
     printf( "\n\n\n process is halted....\n" ); 
 
     exit(1);
 }
-
-void load(struct VMcontext* ctx, const uint32_t instr) {
-
+/*
+void *load(struct VMcontext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    //const uint8_t c = EXTRACT_B3(instr); //Not used
+    ctx->r[a].value = b;
 }
+*/
+
+void *add(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    const uint8_t c = EXTRACT_B3(instr);
+    ctx->r[a].value = ctx->r[b].value + ctx->r[c].value;
+    printf("%d = %d + %d\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+}
+
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
@@ -38,11 +51,13 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
 
     // TODO: initialize function pointers
     f[0x00] = halt;
-/*    f[0x10] = load;
-    f[0x11] = store;
-    f[0x12] = move;
+/*  f[0x10] = load;
+/*    f[0x11] = store;
+    f[0x20] = move;
     f[0x13] = puti;
-    f[0x14] = add;
+    */
+    f[0x50] = add;
+    /*
     f[0x15] = sub;
     f[0x16] = gt;
     f[0x17] = ge;
@@ -93,14 +108,12 @@ int main(int argc, char** argv) {
     pc = (uint32_t*) &heap; 
 
     while (is_running) {
-        printf("Running instr: %d -> '%d', '%d', '%d', '%d'\n", i, 
-            EXTRACT_B0(*pc),
-            EXTRACT_B1(*pc),
-            EXTRACT_B2(*pc),
-            EXTRACT_B3(*pc));
 
         // Read 4-byte bytecode, and set the pc accordingly
-        fread((void*)&heap, 1, 4, bytecode); 
+        fread((void*)pc, 1, 4, bytecode); 
+
+        // Debugging message for instr
+        printf("Instr: %d -> '%d', '%d', '%d', '%d'\n", i, EXTRACT_B0(*pc), EXTRACT_B1(*pc), EXTRACT_B2(*pc), EXTRACT_B3(*pc));
     
         stepVMContext(&vm, &pc);
         i++;
