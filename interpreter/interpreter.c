@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "minivm.h"
 
+
 #define NUM_REGS   (256)
 #define NUM_FUNCS  (256)
 
@@ -13,8 +14,20 @@
 static bool is_running = true;
 
 void usageExit() {
-    // TODO: show usage
+    // show usage
+    printf( "USAGE: interpreter [FILE]\n" ); 
+
     exit(1);
+}
+
+void *halt(struct VMcontext* ctx, const uint32_t instr) {
+    printf( "\n\n\n process is halted....\n" ); 
+
+    exit(1);
+}
+
+void load(struct VMcontext* ctx, const uint32_t instr) {
+
 }
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
@@ -24,8 +37,20 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     }
 
     // TODO: initialize function pointers
-    // f[0x00] = halt;
-    // f[0x10] = load;
+    f[0x00] = halt;
+/*    f[0x10] = load;
+    f[0x11] = store;
+    f[0x12] = move;
+    f[0x13] = puti;
+    f[0x14] = add;
+    f[0x15] = sub;
+    f[0x16] = gt;
+    f[0x17] = ge;
+    f[0x18] = eq;
+    f[0x19] = ite;
+    f[0x1a] = jump;
+    f[0x1b] = puts; 
+    f[0x1c] = gets; */
 }
 
 void initRegs(Reg *r, uint32_t cnt)
@@ -37,11 +62,14 @@ void initRegs(Reg *r, uint32_t cnt)
     }
 }
 
+
 int main(int argc, char** argv) {
+    int i; 
     VMContext vm;
     Reg r[NUM_REGS];
     FunPtr f[NUM_FUNCS];
     FILE* bytecode;
+    char heap[4096]; 
     uint32_t* pc;
 
     // There should be at least one argument.
@@ -61,9 +89,21 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    i = 0;
+    pc = (uint32_t*) &heap; 
+
     while (is_running) {
-        // TODO: Read 4-byte bytecode, and set the pc accordingly
+        printf("Running instr: %d -> '%d', '%d', '%d', '%d'\n", i, 
+            EXTRACT_B0(*pc),
+            EXTRACT_B1(*pc),
+            EXTRACT_B2(*pc),
+            EXTRACT_B3(*pc));
+
+        // Read 4-byte bytecode, and set the pc accordingly
+        fread((void*)&heap, 1, 4, bytecode); 
+    
         stepVMContext(&vm, &pc);
+        i++;
     }
 
     fclose(bytecode);
