@@ -59,6 +59,39 @@ void *sub(struct VMContext* ctx, const uint32_t instr) {
     printf("%d = %d - %d\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
+void *gt(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    const uint8_t c = EXTRACT_B3(instr);
+    if ( ctx->r[b].value >  ctx->r[c].value )
+        ctx->r[a].value = 1;
+    else 
+        ctx->r[a].value = 0;
+    printf("%d = ( %d > %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+}
+
+void *ge(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    const uint8_t c = EXTRACT_B3(instr);
+    if ( ctx->r[b].value >=  ctx->r[c].value )
+        ctx->r[a].value = 1;
+    else 
+        ctx->r[a].value = 0;
+    printf("%d = ( %d >= %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+}
+
+void *eq(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    const uint8_t c = EXTRACT_B3(instr);
+    if ( ctx->r[b].value ==  ctx->r[c].value )
+        ctx->r[a].value = 1;
+    else 
+        ctx->r[a].value = 0;
+    printf("%d = ( %d == %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+}
+
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
     for (i = 0; i < cnt; i++) {
@@ -74,10 +107,10 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     // f[0x13] = puti;
     f[0x50] = add;
     f[0x60] = sub;
+    f[0x70] = gt;
+    f[0x80] = ge;
+    f[0x90] = eq;
     /*
-    f[0x16] = gt;
-    f[0x17] = ge;
-    f[0x18] = eq;
     f[0x19] = ite;
     f[0x1a] = jump;
     f[0x1b] = puts; 
