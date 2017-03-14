@@ -49,10 +49,11 @@ void *load(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
-    checkHeapBoundary( b ); 
-    ctx->r[a].value = heap[b];
+    checkHeapBoundary( ctx->r[b].value ); 
+    ctx->r[a].value = 0xFF; 
+    ctx->r[a].value &= heap[ ctx->r[b].value ];
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = %x\n", ctx->r[a].value, heap[b] );
+    printf("\t%x <= heap[%x]\n", ctx->r[a].value, ctx->r[b].value );
 #endif 
 }
 
@@ -60,10 +61,10 @@ void *store(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
-    checkHeapBoundary( a ); 
-    heap[a] = ctx->r[b].value;
+    checkHeapBoundary( ctx->r[a].value ); 
+    heap[ ctx->r[a].value ] = ctx->r[b].value;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = %x\n", heap[a], ctx->r[b].value );
+    printf("\theap[%x] <= %x\n", ctx->r[a].value, ctx->r[b].value );
 #endif 
 }
 
@@ -75,7 +76,7 @@ void *puti(struct VMContext* ctx, const uint32_t instr) {
     tmp &= b; 
     ctx->r[a].value = tmp;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = %x\n", ctx->r[a].value , tmp );
+    printf("\t%x = %x\n", ctx->r[a].value , tmp );
 #endif 
 }
 
@@ -191,7 +192,7 @@ void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
     // const uint8_t c = EXTRACT_B3(instr);
 
     int i = 0; 
-    char* tmp = &heap;
+    char* tmp = heap;
     checkHeapBoundary( ctx->r[a].value ); 
     tmp += ctx->r[a].value;
 
@@ -212,7 +213,7 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
     // const uint8_t c = EXTRACT_B3(instr);
 
     int i = 0; 
-    char* tmp = &heap;
+    char* tmp = heap;
     checkHeapBoundary( ctx->r[a].value );
     tmp += ctx->r[a].value;
 
@@ -302,6 +303,10 @@ int main(int argc, char** argv) {
 #endif     
         stepVMContext(&vm, &pc);
         i++;
+
+#ifdef VM_DEBUG_MESSAGE 
+        printf("\tHeap (%x): %c | %c \n\n", heap, heap[0], heap[1]);
+#endif     
     }
 
     fclose(bytecode);
