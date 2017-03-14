@@ -15,7 +15,17 @@
 // dispatch :: VMContext -> uint32_t -> Effect()
 void dispatch(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t i = EXTRACT_B0(instr);
-    (*ctx->funtable[i])(ctx, instr);
+    if ( i == 0x00 | i == 0x10 | i == 0x20 | i == 0x30 |
+         i == 0x40 | i == 0x50 | i == 0x60 | i == 0x70 |
+         i == 0x80 | i == 0x90 | i == 0xa0 | i == 0xb0 |
+         i == 0xc0 | i == 0xd0 ) {
+        (*ctx->funtable[i])(ctx, instr);    
+    }
+    else {
+        // terminating if it encounters an unknown opcode
+        printf( "\n\n\n unknown opcode....\n" );     
+        (*ctx->funtable[0])(ctx, instr);    
+    }
 }
 
 
