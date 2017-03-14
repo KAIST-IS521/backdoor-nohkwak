@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include "minivm.h"
 
+// Annotate below definition for deleting debug message 
+#define VM_DEBUG_MESSAGE
 
 #define NUM_REGS   (256)
 #define NUM_FUNCS  (256)
@@ -28,7 +30,9 @@ void usageExit() {
 }
 
 void *halt(struct VMContext* ctx, const uint32_t instr) {
-    printf( "\n\n\n process is halted....\n" ); 
+#ifdef VM_DEBUG_MESSAGE 
+    printf( "\n\n   Process is halted....\n" ); 
+#endif 
     exit(1);
 }
 
@@ -37,6 +41,9 @@ void *load(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
     ctx->r[a].value = heap[b];
+#ifdef VM_DEBUG_MESSAGE 
+    printf("%x = %x\n", ctx->r[a].value, heap[b] );
+#endif 
 }
 
 void *store(struct VMContext* ctx, const uint32_t instr) {
@@ -44,6 +51,9 @@ void *store(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
     heap[a] = ctx->r[b].value;
+#ifdef VM_DEBUG_MESSAGE 
+    printf("%x = %x\n", heap[a], ctx->r[b].value );
+#endif 
 }
 
 void *puti(struct VMContext* ctx, const uint32_t instr) {
@@ -53,6 +63,9 @@ void *puti(struct VMContext* ctx, const uint32_t instr) {
     uint32_t tmp = 0xFF; 
     tmp &= b; 
     ctx->r[a].value = tmp;
+#ifdef VM_DEBUG_MESSAGE 
+    printf("%x = %x\n", ctx->r[a].value , tmp );
+#endif 
 }
 
 void *move(struct VMContext* ctx, const uint32_t instr) {
@@ -60,7 +73,9 @@ void *move(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     // const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value;
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = %x\n", ctx->r[a].value , ctx->r[b].value );
+#endif 
 }
 
 
@@ -69,7 +84,9 @@ void *add(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value + ctx->r[c].value;
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = %x + %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+#endif 
 }
 
 void *sub(struct VMContext* ctx, const uint32_t instr) {
@@ -77,7 +94,9 @@ void *sub(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value - ctx->r[c].value;
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = %x - %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+#endif 
 }
 
 void *gt(struct VMContext* ctx, const uint32_t instr) {
@@ -88,7 +107,9 @@ void *gt(struct VMContext* ctx, const uint32_t instr) {
         ctx->r[a].value = 1;
     else 
         ctx->r[a].value = 0;
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = ( %x > %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+#endif
 }
 
 void *ge(struct VMContext* ctx, const uint32_t instr) {
@@ -99,7 +120,9 @@ void *ge(struct VMContext* ctx, const uint32_t instr) {
         ctx->r[a].value = 1;
     else 
         ctx->r[a].value = 0;
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = ( %x >= %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+#endif
 }
 
 void *eq(struct VMContext* ctx, const uint32_t instr) {
@@ -110,7 +133,9 @@ void *eq(struct VMContext* ctx, const uint32_t instr) {
         ctx->r[a].value = 1;
     else 
         ctx->r[a].value = 0;
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = ( %x == %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+#endif
 }
 
 void *ite(struct VMContext* ctx, const uint32_t instr) {
@@ -123,11 +148,15 @@ void *ite(struct VMContext* ctx, const uint32_t instr) {
     if ( ctx->r[a].value > 0 ) {
         // -4 and +4 because pc is incremented by the stepVMContext function
         pc = (uint32_t*) (tmp + b - 4);
+#ifdef VM_DEBUG_MESSAGE 
         printf("%x = ( %x + %x )\n", tmp + b, tmp, b );
+#endif 
     }
     else {
         pc = (uint32_t*) (tmp + c - 4);
+#ifdef VM_DEBUG_MESSAGE 
         printf("%x = ( %x + %x )\n", tmp + c, tmp, c );
+#endif 
     }
 }
 
@@ -140,7 +169,9 @@ void *jump(struct VMContext* ctx, const uint32_t instr) {
 
     // -4 and +4 because pc is incremented by the stepVMContext function 
     pc = (uint32_t*) (tmp + a - 4);
+#ifdef VM_DEBUG_MESSAGE 
     printf("%x = ( %x + %x )\n", tmp + a, tmp, a );
+#endif 
 }
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
@@ -211,8 +242,9 @@ int main(int argc, char** argv) {
         // I assume that the binary is already loaded. 
 
         // Debugging message for instr
+#ifdef VM_DEBUG_MESSAGE 
         printf("Instr: %d -> '%x', '%x', '%x', '%x'\n", i, EXTRACT_B0(*pc), EXTRACT_B1(*pc), EXTRACT_B2(*pc), EXTRACT_B3(*pc));
-    
+#endif     
         stepVMContext(&vm, &pc);
         i++;
     }
