@@ -60,7 +60,7 @@ void *move(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     // const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value;
-    printf("%d = %d\n", ctx->r[a].value , ctx->r[b].value );
+    printf("%x = %x\n", ctx->r[a].value , ctx->r[b].value );
 }
 
 
@@ -69,7 +69,7 @@ void *add(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value + ctx->r[c].value;
-    printf("%d = %d + %d\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("%x = %x + %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
 void *sub(struct VMContext* ctx, const uint32_t instr) {
@@ -77,7 +77,7 @@ void *sub(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value - ctx->r[c].value;
-    printf("%d = %d - %d\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("%x = %x - %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
 void *gt(struct VMContext* ctx, const uint32_t instr) {
@@ -88,7 +88,7 @@ void *gt(struct VMContext* ctx, const uint32_t instr) {
         ctx->r[a].value = 1;
     else 
         ctx->r[a].value = 0;
-    printf("%d = ( %d > %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("%x = ( %x > %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
 void *ge(struct VMContext* ctx, const uint32_t instr) {
@@ -99,7 +99,7 @@ void *ge(struct VMContext* ctx, const uint32_t instr) {
         ctx->r[a].value = 1;
     else 
         ctx->r[a].value = 0;
-    printf("%d = ( %d >= %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("%x = ( %x >= %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
 void *eq(struct VMContext* ctx, const uint32_t instr) {
@@ -110,7 +110,7 @@ void *eq(struct VMContext* ctx, const uint32_t instr) {
         ctx->r[a].value = 1;
     else 
         ctx->r[a].value = 0;
-    printf("%d = ( %d == %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("%x = ( %x == %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
 void *ite(struct VMContext* ctx, const uint32_t instr) {
@@ -118,14 +118,29 @@ void *ite(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t b = EXTRACT_B2(instr);
     const uint8_t c = EXTRACT_B3(instr);
 
+    char* tmp = &text;
+
     if ( ctx->r[a].value > 0 ) {
-        pc = (uint32_t*) (&text + ctx->r[b].value);
-        printf("%x = ( %x + %x )\n", pc, &text, ctx->r[b].value );
+        // -4 and +4 because pc is incremented by the stepVMContext function
+        pc = (uint32_t*) (tmp + b - 4);
+        printf("%x = ( %x + %x )\n", tmp + b, tmp, b );
     }
     else {
-        pc = (uint32_t*) (&text + ctx->r[c].value);
-        printf("%x = ( %x + %x )\n", pc, &text, ctx->r[c].value );
+        pc = (uint32_t*) (tmp + c - 4);
+        printf("%x = ( %x + %x )\n", tmp + c, tmp, c );
     }
+}
+
+void *jump(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    // const uint8_t b = EXTRACT_B2(instr);
+    // const uint8_t c = EXTRACT_B3(instr);
+
+    char* tmp = &text;
+
+    // -4 and +4 because pc is incremented by the stepVMContext function 
+    pc = (uint32_t*) (tmp + a - 4);
+    printf("%x = ( %x + %x )\n", tmp + a, tmp, a );
 }
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
@@ -146,10 +161,10 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x80] = ge;
     f[0x90] = eq;
     f[0xa0] = ite;
-/*
     f[0xb0] = jump;
-    f[0xc0] = puts; 
-    f[0xd0] = gets; */
+    /*
+    f[0xc0] = puts_inst; 
+    f[0xd0] = gets_inst;*/
 }
 
 void initRegs(Reg *r, uint32_t cnt)
@@ -196,7 +211,7 @@ int main(int argc, char** argv) {
         // I assume that the binary is already loaded. 
 
         // Debugging message for instr
-        printf("Instr: %d -> '%d', '%d', '%d', '%d'\n", i, EXTRACT_B0(*pc), EXTRACT_B1(*pc), EXTRACT_B2(*pc), EXTRACT_B3(*pc));
+        printf("Instr: %d -> '%x', '%x', '%x', '%x'\n", i, EXTRACT_B0(*pc), EXTRACT_B1(*pc), EXTRACT_B2(*pc), EXTRACT_B3(*pc));
     
         stepVMContext(&vm, &pc);
         i++;
