@@ -174,6 +174,49 @@ void *jump(struct VMContext* ctx, const uint32_t instr) {
 #endif 
 }
 
+void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    // const uint8_t b = EXTRACT_B2(instr);
+    // const uint8_t c = EXTRACT_B3(instr);
+
+    int i = 0; 
+    char* tmp = &heap;
+    tmp += ctx->r[a].value;
+
+#ifdef VM_DEBUG_MESSAGE 
+    printf("puts from %x (%x) : ", ctx->r[a].value, tmp );
+#endif 
+
+    while ( tmp[i] != 0 ) {
+        printf("%c", tmp[i] ); 
+        i++; 
+    }
+    printf("\n");
+}
+
+void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    // const uint8_t b = EXTRACT_B2(instr);
+    // const uint8_t c = EXTRACT_B3(instr);
+
+    int i = 0; 
+    char* tmp = &heap;
+    tmp += ctx->r[a].value;
+
+#ifdef VM_DEBUG_MESSAGE 
+    printf("gets from %x (%x) : ", ctx->r[a].value, tmp );
+#endif 
+
+    while(1) {
+        tmp[i] = fgetc( stdin ); 
+        if ( tmp[i] == '\n' ) {
+            tmp[i] = 0; 
+            break; 
+        }
+        i++; 
+    }
+}
+
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
     for (i = 0; i < cnt; i++) {
@@ -193,9 +236,8 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x90] = eq;
     f[0xa0] = ite;
     f[0xb0] = jump;
-    /*
     f[0xc0] = puts_inst; 
-    f[0xd0] = gets_inst;*/
+    f[0xd0] = gets_inst;
 }
 
 void initRegs(Reg *r, uint32_t cnt)
