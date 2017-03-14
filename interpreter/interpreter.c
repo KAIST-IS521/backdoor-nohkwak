@@ -15,9 +15,12 @@
 // Global variable that indicates if the process is running.
 static bool is_running = true;
 
+#define TEXT_SIZE 8192
+#define HEAP_SIZE 8192
+
 // memory 
-char text[8192]; 
-char heap[8192]; 
+char text[ TEXT_SIZE ]; 
+char heap[ HEAP_SIZE + 1 ]; 
 
 // program count 
 uint32_t* pc;
@@ -25,8 +28,14 @@ uint32_t* pc;
 void usageExit() {
     // show usage
     printf( "USAGE: interpreter [FILE]\n" ); 
-
     exit(1);
+}
+
+void checkHeapBoundary( uint8_t i ) {
+    if ( HEAP_SIZE < i) {
+        printf( "ERROR: wrong heap address ... \n" ); 
+        exit(1);
+    }
 }
 
 void *halt(struct VMContext* ctx, const uint32_t instr) {
@@ -40,6 +49,7 @@ void *load(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
+    checkHeapBoundary( b ); 
     ctx->r[a].value = heap[b];
 #ifdef VM_DEBUG_MESSAGE 
     printf("%x = %x\n", ctx->r[a].value, heap[b] );
@@ -50,6 +60,7 @@ void *store(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
+    checkHeapBoundary( a ); 
     heap[a] = ctx->r[b].value;
 #ifdef VM_DEBUG_MESSAGE 
     printf("%x = %x\n", heap[a], ctx->r[b].value );
@@ -181,6 +192,7 @@ void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
 
     int i = 0; 
     char* tmp = &heap;
+    checkHeapBoundary( ctx->r[a].value ); 
     tmp += ctx->r[a].value;
 
 #ifdef VM_DEBUG_MESSAGE 
@@ -201,6 +213,7 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
 
     int i = 0; 
     char* tmp = &heap;
+    checkHeapBoundary( ctx->r[a].value );
     tmp += ctx->r[a].value;
 
 #ifdef VM_DEBUG_MESSAGE 
@@ -274,7 +287,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    fread((void*)text, 1, 8192, bytecode);
+    fread((void*)text, 1, TEXT_SIZE, bytecode);
 
     i = 0;
     pc = (uint32_t*) &text; 
