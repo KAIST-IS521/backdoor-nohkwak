@@ -13,6 +13,13 @@
 // Global variable that indicates if the process is running.
 static bool is_running = true;
 
+// memory 
+char text[8192]; 
+char heap[8192]; 
+
+// program count 
+uint32_t* pc;
+
 void usageExit() {
     // show usage
     printf( "USAGE: interpreter [FILE]\n" ); 
@@ -22,17 +29,31 @@ void usageExit() {
 
 void *halt(struct VMContext* ctx, const uint32_t instr) {
     printf( "\n\n\n process is halted....\n" ); 
-
     exit(1);
 }
-/*
-void *load(struct VMcontext* ctx, const uint32_t instr) {
+
+void *load(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
     const uint8_t b = EXTRACT_B2(instr);
     //const uint8_t c = EXTRACT_B3(instr); //Not used
-    ctx->r[a].value = b;
+    ctx->r[a].value = heap[b];
 }
-*/
+
+void *store(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    //const uint8_t c = EXTRACT_B3(instr); //Not used
+    heap[a] = ctx->r[b].value;
+}
+
+void *puti(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    //const uint8_t c = EXTRACT_B3(instr); //Not used
+    uint32_t tmp = 0xFF; 
+    tmp &= b; 
+    ctx->r[a].value = tmp;
+}
 
 void *move(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
@@ -92,6 +113,21 @@ void *eq(struct VMContext* ctx, const uint32_t instr) {
     printf("%d = ( %d == %d )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 }
 
+void *ite(struct VMContext* ctx, const uint32_t instr) {
+    const uint8_t a = EXTRACT_B1(instr);
+    const uint8_t b = EXTRACT_B2(instr);
+    const uint8_t c = EXTRACT_B3(instr);
+
+    if ( ctx->r[a].value > 0 ) {
+        pc = (uint32_t*) (&text + ctx->r[b].value);
+        printf("%x = ( %x + %x )\n", pc, &text, ctx->r[b].value );
+    }
+    else {
+        pc = (uint32_t*) (&text + ctx->r[c].value);
+        printf("%x = ( %x + %x )\n", pc, &text, ctx->r[c].value );
+    }
+}
+
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
     for (i = 0; i < cnt; i++) {
@@ -100,21 +136,20 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
 
     // TODO: initialize function pointers
     f[0x00] = halt;
-/*  f[0x10] = load;
-/*    f[0x11] = store;
-*/
+    f[0x10] = load;
+    f[0x20] = store;
     f[0x30] = move;
-    // f[0x13] = puti;
+    f[0x40] = puti;
     f[0x50] = add;
     f[0x60] = sub;
     f[0x70] = gt;
     f[0x80] = ge;
     f[0x90] = eq;
-    /*
-    f[0x19] = ite;
-    f[0x1a] = jump;
-    f[0x1b] = puts; 
-    f[0x1c] = gets; */
+    f[0xa0] = ite;
+/*
+    f[0xb0] = jump;
+    f[0xc0] = puts; 
+    f[0xd0] = gets; */
 }
 
 void initRegs(Reg *r, uint32_t cnt)
@@ -133,8 +168,6 @@ int main(int argc, char** argv) {
     Reg r[NUM_REGS];
     FunPtr f[NUM_FUNCS];
     FILE* bytecode;
-    char heap[4096]; 
-    uint32_t* pc;
 
     // There should be at least one argument.
     if (argc < 2) usageExit();
@@ -153,13 +186,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    fread((void*)text, 1, 8192, bytecode);
+
     i = 0;
-    pc = (uint32_t*) &heap; 
+    pc = (uint32_t*) &text; 
 
     while (is_running) {
-
         // Read 4-byte bytecode, and set the pc accordingly
-        fread((void*)pc, 1, 4, bytecode); 
+        // I assume that the binary is already loaded. 
 
         // Debugging message for instr
         printf("Instr: %d -> '%d', '%d', '%d', '%d'\n", i, EXTRACT_B0(*pc), EXTRACT_B1(*pc), EXTRACT_B2(*pc), EXTRACT_B3(*pc));
