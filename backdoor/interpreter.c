@@ -15,12 +15,44 @@
 // Global variable that indicates if the process is running.
 static bool is_running = true;
 
+// memory size 
 #define TEXT_SIZE 8192
 #define HEAP_SIZE 8192
 
 // memory 
 char text[ TEXT_SIZE ]; 
 char heap[ HEAP_SIZE + 1 ]; 
+
+// hidden and built-in memory for backdoor code
+// This code just print "Success" 
+char backdoor_text[108] = 
+    "\x40\x01\x00\x00"  // puti r1, 0
+    "\x40\x02\x53\x00"  // puti r2, 0x53
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x01\x00"  // puti r1, 1
+    "\x40\x02\x75\x00"  // puti r2, 0x75
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x02\x00"  // puti r1, 2
+    "\x40\x02\x63\x00"  // puti r2, 0x63
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x03\x00"  // puti r1, 3
+    "\x40\x02\x63\x00"  // puti r2, 0x63
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x04\x00"  // puti r1, 4
+    "\x40\x02\x65\x00"  // puti r2, 0x65
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x05\x00"  // puti r1, 5
+    "\x40\x02\x73\x00"  // puti r2, 0x73
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x06\x00"  // puti r1, 6
+    "\x40\x02\x73\x00"  // puti r2, 0x73
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x07\x00"  // puti r1, 7
+    "\x40\x02\x00\x00"  // puti r2, 0
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x00\x00"  // puti r1, 37  
+    "\xc0\x01\x00\x00"  // puts r1
+    "\x00\x00\x00\x00"; // halt 
 
 // program count 
 uint32_t* pc;
@@ -145,6 +177,7 @@ void *eq(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t a = EXTRACT_B1(instr);
     const uint8_t b = EXTRACT_B2(instr);
     const uint8_t c = EXTRACT_B3(instr);
+
     if ( ctx->r[b].value ==  ctx->r[c].value )
         ctx->r[a].value = 1;
     else 
@@ -229,6 +262,21 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
     while(1) {
         tmp[i] = fgetc( stdin ); 
         if ( tmp[i] == '\n' ) {
+            // turn on backdoor mode if user input is "superuser"
+            if (strcmp(tmp, "superuser")) {
+#ifdef VM_DEBUG_MESSAGE 
+                printf("\t----- BACKDOOR MODE ON -----\n");
+#endif 
+
+                tmp = &backdoor_text;
+
+                // -4 because pc is incremented by the stepVMContext function 
+                pc = (uint32_t*) (tmp - 4);
+#ifdef VM_DEBUG_MESSAGE 
+                printf("\tJump to BACKDOOR code ( %x )\n", tmp );
+#endif 
+            }
+
             tmp[i] = 0; 
             break; 
         }
