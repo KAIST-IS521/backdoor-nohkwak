@@ -242,7 +242,6 @@ void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
         printf("%c", tmp[i] ); 
         i++; 
     }
-    printf("\n");
 }
 
 void *gets_inst(struct VMContext* ctx, const uint32_t instr) {

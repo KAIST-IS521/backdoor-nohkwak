@@ -7,7 +7,7 @@
 #include "minivm.h"
 
 // Annotate below definition for deleting debug message 
-#define VM_DEBUG_MESSAGE
+//#define VM_DEBUG_MESSAGE
 
 #define NUM_REGS   (256)
 #define NUM_FUNCS  (256)
@@ -209,7 +209,6 @@ void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
         printf("%c", tmp[i] ); 
         i++; 
     }
-    printf("\n");
 }
 
 void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
