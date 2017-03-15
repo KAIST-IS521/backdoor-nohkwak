@@ -76,7 +76,7 @@ void *puti(struct VMContext* ctx, const uint32_t instr) {
     tmp &= b; 
     ctx->r[a].value = tmp;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("\t%x = %x\n", ctx->r[a].value , tmp );
+    printf("\tregister[%x] <= %x\n", a, tmp );
 #endif 
 }
 
@@ -86,7 +86,7 @@ void *move(struct VMContext* ctx, const uint32_t instr) {
     // const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = %x\n", ctx->r[a].value , ctx->r[b].value );
+    printf("\tregister[%x] <= %x in register[%x]\n", a, ctx->r[b].value, b );
 #endif 
 }
 
@@ -97,7 +97,8 @@ void *add(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value + ctx->r[c].value;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = %x + %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("\tregister[%x] = register[%x] + register[%x]\n", a, b, c);
+    printf("\t%x = %x + %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 #endif 
 }
 
@@ -107,7 +108,8 @@ void *sub(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t c = EXTRACT_B3(instr);
     ctx->r[a].value = ctx->r[b].value - ctx->r[c].value;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = %x - %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("\tregister[%x] = register[%x] - register[%x]\n", a, b, c);
+    printf("\t%x = %x - %x\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 #endif 
 }
 
@@ -120,7 +122,8 @@ void *gt(struct VMContext* ctx, const uint32_t instr) {
     else 
         ctx->r[a].value = 0;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = ( %x > %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("\tregister[%x] = ( register[%x] > register[%x] )\n", a, b, c);
+    printf("\t%x = ( %x > %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 #endif
 }
 
@@ -133,7 +136,8 @@ void *ge(struct VMContext* ctx, const uint32_t instr) {
     else 
         ctx->r[a].value = 0;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = ( %x >= %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("\tregister[%x] = ( register[%x] >= register[%x] )\n", a, b, c);
+    printf("\t%x = ( %x >= %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 #endif
 }
 
@@ -146,7 +150,8 @@ void *eq(struct VMContext* ctx, const uint32_t instr) {
     else 
         ctx->r[a].value = 0;
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = ( %x == %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
+    printf("\tregister[%x] = ( register[%x] == register[%x] )\n", a, b, c);
+    printf("\t%x = ( %x == %x )\n", ctx->r[a].value , ctx->r[b].value , ctx->r[c].value );
 #endif
 }
 
@@ -161,13 +166,13 @@ void *ite(struct VMContext* ctx, const uint32_t instr) {
         // -4 and +4 because pc is incremented by the stepVMContext function
         pc = (uint32_t*) (tmp + b - 4);
 #ifdef VM_DEBUG_MESSAGE 
-        printf("%x = ( %x + %x )\n", tmp + b, tmp, b );
+        printf("\tPC : %x <= ( %x + %x )\n", tmp + b, tmp, b );
 #endif 
     }
     else {
         pc = (uint32_t*) (tmp + c - 4);
 #ifdef VM_DEBUG_MESSAGE 
-        printf("%x = ( %x + %x )\n", tmp + c, tmp, c );
+        printf("\tPC : %x <= ( %x + %x )\n", tmp + c, tmp, c );
 #endif 
     }
 }
@@ -182,7 +187,7 @@ void *jump(struct VMContext* ctx, const uint32_t instr) {
     // -4 and +4 because pc is incremented by the stepVMContext function 
     pc = (uint32_t*) (tmp + a - 4);
 #ifdef VM_DEBUG_MESSAGE 
-    printf("%x = ( %x + %x )\n", tmp + a, tmp, a );
+    printf("\tJump to %x ( %x + %x )\n", tmp + a, tmp, a );
 #endif 
 }
 
@@ -197,7 +202,7 @@ void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
     tmp += ctx->r[a].value;
 
 #ifdef VM_DEBUG_MESSAGE 
-    printf("puts from %x (%x) : ", ctx->r[a].value, tmp );
+    printf("\tputs from %x (%x) : ", ctx->r[a].value, tmp );
 #endif 
 
     while ( tmp[i] != 0 ) {
@@ -218,7 +223,7 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
     tmp += ctx->r[a].value;
 
 #ifdef VM_DEBUG_MESSAGE 
-    printf("gets from %x (%x) : ", ctx->r[a].value, tmp );
+    printf("\tgets from %x (%x) : ", ctx->r[a].value, tmp );
 #endif 
 
     while(1) {
@@ -303,10 +308,10 @@ int main(int argc, char** argv) {
 #endif     
         stepVMContext(&vm, &pc);
         i++;
-
-#ifdef VM_DEBUG_MESSAGE 
+/*
+        // heap data checking 
         printf("\tHeap (%x): %c | %c \n\n", heap, heap[0], heap[1]);
-#endif     
+*/
     }
 
     fclose(bytecode);
