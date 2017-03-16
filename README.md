@@ -30,12 +30,16 @@ I implementated the pseudocode for login program with mini language.
 
 ### ./test/test.mini
 
+I implementated the test program to convert small letters to capital letters. 
+
 ### ./test/test.md
+
+This explains what test.mini does and how to use it. 
 
 ### ./backdoor 
 
 Backdoor is added on the base code of the interpreter.
-I assumed that the backdoor code is hidden and built-in memory.  
+I assumed that the backdoor code is hidden and located in the built-in memory.  
 If the input is "superuser", program counter is set to the address of this backdoor code. 
 
 ```
