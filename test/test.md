@@ -26,6 +26,8 @@ void main(void){
 		}
 	}
 
+	puts( buf ); 
+
 	exit(0);
 }
 ```
