@@ -4,7 +4,7 @@ This program converts small letters to capital letters.
 
 If you enter some string, then this program will check whether each character is small letter or not. If small letter, the letter will be changed into capital letter. 
 
-> Input : user's input (string)
+> Input : user's input (Max size of string = 50)
 > Output : user's input which is converted to the capital letter 
 
 Pseudocode is like following. 
