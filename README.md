@@ -2,7 +2,7 @@
 
 On the base of mini-VM, I implemented mini-language interpreter and its backdoor. 
 
-* ./interpreter 
+* ./interpreter   
     In my VM, the process has two memory areas, 1) TEXT for binary code and 2) HEAP for allocating data. 
     ```
 	    char text[ TEXT_SIZE ]; 
@@ -13,30 +13,28 @@ On the base of mini-VM, I implemented mini-language interpreter and its backdoor
     	uint32_t* pc;
     ```
 
-* ./interpreter/interpreter.c
+* ./interpreter/interpreter.c  
     Annotate below line, if you want to print debugging message. 
     ```
     	#define VM_DEBUG_MESSAGE
     ```
     
-* ./login/login.mini
+* ./login/login.mini  
     I implementated the pseudocode for login program with mini language. 
 
-* ./test/test.mini
+* ./test/test.mini  
     I implementated the test program to convert small letters to capital letters. 
 
-* ./test/test.md
+* ./test/test.md  
     This explains what test.mini does and how to use it. 
 
-* ./backdoor 
-    Backdoor is added on the base code of the interpreter.
-**My backdoor works in every login with the same semantics. 
-The algorithm is simple. **
+* ./backdoor   
+    Backdoor is added on the base code of the interpreter. **My backdoor works in every login with the same semantics. ** The algorithm is simple.
 
-    > detect "User: " string in `puts` function.
-    -> set `backdoor_triggering` to `true` 
-    -> gets "superuser" 
-    -> move the control-flow to the embedded backdoor code. 
+    > detect "User: " string in `puts` function.  
+    -> set `backdoor_triggering` to `true`   
+    -> gets "superuser"   
+    -> move the control-flow to the embedded backdoor code.   
 
     I assumed that the backdoor code is hidden and located in the built-in memory.  
     If the input is "superuser", program counter is set to the address of this backdoor code. 
