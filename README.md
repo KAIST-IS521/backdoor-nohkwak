@@ -29,7 +29,7 @@ On the base of mini-VM, I implemented mini-language interpreter and its backdoor
     This explains what test.mini does and how to use it. 
 
 * ./backdoor   
-    Backdoor is added on the base code of the interpreter. **My backdoor works in every login with the same semantics. ** The algorithm is simple.
+    Backdoor is added on the base code of the interpreter. **My backdoor works in every login with the same semantics.** The algorithm is simple.
 
     > detect "User: " string in `puts` function.  
     -> set `backdoor_triggering` to `true`   

@@ -200,15 +200,15 @@ void *ite(struct VMContext* ctx, const uint32_t instr) {
 
     if ( ctx->r[a].value > 0 ) {
         // -4 and +4 because pc is incremented by the stepVMContext function
-        pc = (uint32_t*) (tmp + b - 4);
+        pc = (uint32_t*) (tmp + b*4 - 4);
 #ifdef VM_DEBUG_MESSAGE 
-        printf("\tPC : %x <= ( %x + %x )\n", tmp + b, tmp, b );
+        printf("\tPC : %x <= ( %x + %x *4)\n", tmp + b*4, tmp, b );
 #endif 
     }
     else {
-        pc = (uint32_t*) (tmp + c - 4);
+        pc = (uint32_t*) (tmp + c*4 - 4);
 #ifdef VM_DEBUG_MESSAGE 
-        printf("\tPC : %x <= ( %x + %x )\n", tmp + c, tmp, c );
+        printf("\tPC : %x <= ( %x + %x *4 )\n", tmp + c*4, tmp, c );
 #endif 
     }
 }
@@ -221,9 +221,9 @@ void *jump(struct VMContext* ctx, const uint32_t instr) {
     char* tmp = &text;
 
     // -4 and +4 because pc is incremented by the stepVMContext function 
-    pc = (uint32_t*) (tmp + a - 4);
+    pc = (uint32_t*) (tmp + a*4 - 4);
 #ifdef VM_DEBUG_MESSAGE 
-    printf("\tJump to %x ( %x + %x )\n", tmp + a, tmp, a );
+    printf("\tJump to %x ( %x + %x *4 )\n", tmp + a*4, tmp, a );
 #endif 
 }
 
