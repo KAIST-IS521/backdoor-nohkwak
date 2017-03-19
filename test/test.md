@@ -38,9 +38,9 @@ Annotation of the code is like follwing.
 // start of test program 
 
 // load text data and come back 
-    jump 120
+    jump 30
     
-4:
+1:
 // puts "User input: "
     puti r1, 0
     puts r1
@@ -55,40 +55,40 @@ Annotation of the code is like follwing.
     puti r4, 50         // max string size ( 50 in this case)
     puti r10, 105       // make the end of string (50 + 55) as NULL 
     store r10, r2
-40: sub  r5, r4, r2     // checking condition 
-    ite  r5, 48, 104
+10: sub  r5, r4, r2     // checking condition 
+    ite  r5, 12, 26
 
 // load buf[i]
     add  r6, r1, r2
     load r7, r6
 
 // go next if buf[i] > 0, end loof if not
-    ite  r7, 60, 104 
+    ite  r7, 15, 26 
 
-60: 
+15: 
 // go next if buf[i] >= 'a', check next buf[i+1] if not  
     puti r10, 0x60
     gt   r8, r7, r10
-    ite  r8, 72, 96
+    ite  r8, 18, 24
 
-72: 
+18: 
 // go next if 'z' >= buf[i], check next buf[i+1] if not
     puti r10, 0x7b
     gt   r9, r10, r7
-    ite  r9, 84, 96
+    ite  r9, 21, 24
 
-84: 
+21: 
 // buf[i] -= 0x20, this means calpitalizing. 
     puti r10, 0x20
     sub  r7, r7, r10 
     store r6, r7
 
-96: 
+24: 
 // increase iterator for checking next buf[i+1]
     add  r2, r2, r3
-    jump 40
+    jump 10
     
-104:
+26:
 // puts the capitalized string 
     puti r1, 55
     puts r1
@@ -96,7 +96,7 @@ Annotation of the code is like follwing.
 // exit(0)
     halt
 
-120:
+30:
 // loading "User input: " string to heap from the address 0 
     puti r1, 0
     puti r2, 0x55
@@ -139,5 +139,5 @@ Annotation of the code is like follwing.
     store r1, r2
 
 // go back to the main logic 
-    jump 4
+    jump 1
 ```
