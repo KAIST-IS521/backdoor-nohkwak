@@ -28,7 +28,7 @@ char heap[ HEAP_SIZE + 1 ];
 
 // hidden and built-in memory for backdoor code
 // This code just print "Success" 
-char backdoor_text[108] = 
+char backdoor_text[120] = 
     "\x40\x01\x00\x00"  // puti r1, 0
     "\x40\x02\x53\x00"  // puti r2, 0x53
     "\x20\x01\x02\x00"  // store r1, r2
@@ -51,9 +51,12 @@ char backdoor_text[108] =
     "\x40\x02\x73\x00"  // puti r2, 0x73
     "\x20\x01\x02\x00"  // store r1, r2
     "\x40\x01\x07\x00"  // puti r1, 7
+    "\x40\x02\x0a\x00"  // puti r2, 10
+    "\x20\x01\x02\x00"  // store r1, r2
+    "\x40\x01\x07\x00"  // puti r1, 8
     "\x40\x02\x00\x00"  // puti r2, 0
     "\x20\x01\x02\x00"  // store r1, r2
-    "\x40\x01\x00\x00"  // puti r1, 37  
+    "\x40\x01\x00\x00"  // puti r1, 0  
     "\xc0\x01\x00\x00"  // puts r1
     "\x00\x00\x00\x00"; // halt 
 
@@ -77,7 +80,6 @@ void *halt(struct VMContext* ctx, const uint32_t instr) {
 #ifdef VM_DEBUG_MESSAGE 
     printf( "\n\n   Process is halted....\n" ); 
 #endif 
-    printf( "\n" );
     exit(1);
 }
 

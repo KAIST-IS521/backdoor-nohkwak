@@ -42,7 +42,6 @@ void *halt(struct VMContext* ctx, const uint32_t instr) {
 #ifdef VM_DEBUG_MESSAGE 
     printf( "\n\n   Process is halted....\n" ); 
 #endif 
-    printf( "\n" );
     exit(1);
 }
 

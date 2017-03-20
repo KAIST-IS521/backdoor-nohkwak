@@ -176,6 +176,9 @@ puti r1, 43
 puti r2, 0x73
 store r1, r2
 puti r1, 44
+puti r2, 10
+store r1, r2
+puti r1, 45
 puti r2, 0
 store r1, r2
 puti r1, 46
@@ -200,6 +203,9 @@ puti r1, 52
 puti r2, 0x65
 store r1, r2
 puti r1, 53
+puti r2, 10
+store r1, r2
+puti r1, 54
 puti r2, 0
 store r1, r2
 jump 1
